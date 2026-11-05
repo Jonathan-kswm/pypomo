@@ -6,9 +6,10 @@ RESET = "\033[0m"
 
 
 class Timer:
-    def __init__(self, work, pause):
+    def __init__(self, work, pause, sound=None):
         self.work = work  # amount of time for work (minutes)
         self.pause = pause  # amount of time for a break (minutes)
+        self.sound = sound  # a Sound to play when the timer changes, or None for silence
 
     @staticmethod
     def _format(label, seconds, active):
@@ -33,6 +34,8 @@ class Timer:
                     active = 1 - active
                     phase_start = time.monotonic()
                     remaining = phases[active][1]
+                    if self.sound:
+                        self.sound.bell()
                 lines = []
                 for i, (label, total) in enumerate(phases):
                     is_active = i == active
