@@ -1,5 +1,4 @@
 # This will be the main location for the timer functions for the pomodoro timer
-import math
 import os
 import sys
 import time
@@ -34,18 +33,20 @@ class Timer:
         # The active timer is green; when it hits zero the other one takes over.
         phases = [("Work", round(self.work * 60)), ("Break", round(self.pause * 60))]
         active = 0
-        end_time = time.monotonic() + phases[active][1]
+        phase_start = time.monotonic()
         two_lines = _can_move_cursor()
         if two_lines:
             print(HIDE_CURSOR, end="")
         try:
             while True:
-                # ceil, not round: round hits 0 with half a second still left
-                remaining = math.ceil(end_time - time.monotonic())
-                if remaining <= 0:
-                    # switch to the other timer; the finished one shows its full time again
+                # whole seconds since the phase began, so every value, including
+                # the starting time and 00:00, stays on screen for one full second
+                remaining = phases[active][1] - int(time.monotonic() - phase_start)
+                if remaining < 0:
+                    # 00:00 has had its second: switch to the other timer, and the
+                    # finished one shows its full time again
                     active = 1 - active
-                    end_time = time.monotonic() + phases[active][1]
+                    phase_start = time.monotonic()
                     remaining = phases[active][1]
                 lines = []
                 for i, (label, total) in enumerate(phases):
