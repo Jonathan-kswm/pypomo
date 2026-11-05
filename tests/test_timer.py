@@ -1,5 +1,4 @@
-from pypomo.timer import Timer
-import time
+from pypomo.timer import GREEN, Timer
 import threading
 import _thread
 
@@ -18,10 +17,19 @@ def test_start_counts_down_to_zero(capsys):
 
 
 def test_timer_changes(capsys):
-    threading.Timer(1, _thread.interrupt_main).start()
+    threading.Timer(1.5, _thread.interrupt_main).start()
     Timer(0.01, 0).start()
     out = capsys.readouterr().out
-    assert "\rWork: 00:00" in out
-    time.sleep(0.01)
-    assert "\rBreak: 00:00" in out
+    assert GREEN + "Work: 00:01" in out
+    assert GREEN + "Break: 00:00" in out
     assert out.endswith("\n")
+
+
+def test_timers_appear_in_place(capsys):
+    threading.Timer(0.1, _thread.interrupt_main).start()
+    Timer(0.01, 0).start()
+    out = capsys.readouterr().out
+    assert "Work: 00:01" in out
+    assert "Break: 00:00" in out
+    assert out.count("\n") == 2  # only the "Timer stopped." message adds lines
+
