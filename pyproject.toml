@@ -7,7 +7,9 @@ authors = [
     { name = "Jonathan Howard", email = "jonathan.howard.2005@gmail.com" }
 ]
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "pytest>=9.2.0",
+]
 
 [project.scripts]
 pypomo = "pypomo:main"
@@ -15,3 +17,8 @@ pypomo = "pypomo:main"
 [build-system]
 requires = ["uv_build>=0.12.5,<0.13.0"]
 build-backend = "uv_build"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-ra"
