@@ -6,10 +6,11 @@ RESET = "\033[0m"
 
 
 class Timer:
-    def __init__(self, work, pause, sound=None):
+    def __init__(self, work, pause, sound=None, display=None):
         self.work = work  # amount of time for work (minutes)
         self.pause = pause  # amount of time for a break (minutes)
         self.sound = sound  # a Sound to play when the timer changes, or None for silence
+        self.display = display  # something with draw(timers), or None for the one-line timer
 
     @staticmethod
     def _format(label, seconds, active):
@@ -17,8 +18,16 @@ class Timer:
         text = f"{label}: {mins:02d}:{secs:02d}"
         return f"{GREEN}{text}{RESET}" if active else text
 
+    def _draw(self, timers):
+        if self.display:
+            self.display.draw(timers)
+            return
+        lines = [self._format(*timer) for timer in timers]
+        # \r overwrites the current line, so no new lines are added
+        print("\r" + " | ".join(lines) + "   ", end="", flush=True)
+
     def start(self):
-        # Work and Break are redrawn in place, side by side on one line.
+        # Work and Break are redrawn in place, by the display if there is one.
         # The active timer is green; when it hits zero the other one takes over.
         phases = [("Work", round(self.work * 60)), ("Break", round(self.pause * 60))]
         active = 0
@@ -36,12 +45,12 @@ class Timer:
                     remaining = phases[active][1]
                     if self.sound:
                         self.sound.bell()
-                lines = []
+                timers = []
                 for i, (label, total) in enumerate(phases):
                     is_active = i == active
-                    lines.append(self._format(label, remaining if is_active else total, is_active))
-                # \r overwrites the current line, so no new lines are added
-                print("\r" + " | ".join(lines) + "   ", end="", flush=True)
+                    timers.append((label, remaining if is_active else total, is_active))
+                self._draw(timers)
                 time.sleep(0.1)
         except KeyboardInterrupt:
-            print("\nTimer stopped.")
+            if not self.display:
+                print("\nTimer stopped.")
