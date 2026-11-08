@@ -10,7 +10,7 @@ Work: 24:59 | Break: 05:00
 
 ## Requirements
 
-- macOS (sounds are played with the built-in `afplay` command)
+- macOS or Linux. Sounds are played with the built-in `afplay` command on macOS, and with `paplay` on Linux (it comes with PulseAudio/PipeWire, which most desktops, including Linux Mint, have by default)
 - [uv](https://docs.astral.sh/uv/)
 - Python 3.12 or newer
 
@@ -36,14 +36,16 @@ Decimals are allowed, so `uv run main.py 0.5 0.1` is a quick way to try it out.
 
 ## Customising the sounds
 
-The sounds live in the `Sound` class in `src/pypomo/sound.py`. By default it uses macOS system sounds, and you can pass in your own files:
+The sounds live in the `Sound` class in `src/pypomo/sound.py`. By default it uses the system sounds: `Glass.aiff` on macOS and `/usr/share/sounds/freedesktop/stereo/complete.oga` on Linux. You can pass in your own files:
 
 ```python
 from pypomo.sound import Sound
 from pypomo.timer import Timer
 
-Timer(25, 5, Sound(bell="my_bell.mp3")).start()
+Timer(25, 5, Sound(bell="my_bell.wav")).start()
 ```
+
+On Linux, `paplay` plays wav, ogg and oga files (recent distros can also play mp3).
 
 `Sound` also has a ticking noise, `Sound().tick()`, which the timer doesn't use yet.
 
